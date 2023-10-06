@@ -1575,6 +1575,9 @@ bool LSM6DSO::setAccelBatchDataRate(uint16_t rate) {
     case 125:
       regVal |= FIFO_BDR_ACC_12_5Hz;
       break;
+    case 26:
+      regVal |= FIFO_BDR_ACC_26Hz;
+      break;
     case 52:
       regVal |= FIFO_BDR_ACC_52Hz;
       break;
@@ -1628,6 +1631,8 @@ float LSM6DSO::getAccelBatchDataRate() {
       return 1.6;
     case FIFO_BDR_ACC_12_5Hz:
       return 12.5;
+    case FIFO_BDR_ACC_26Hz:
+      return 26.0;
     case FIFO_BDR_ACC_52Hz:
       return 52.0;
     case FIFO_BDR_ACC_104Hz:
@@ -1654,7 +1659,7 @@ float LSM6DSO::getAccelBatchDataRate() {
 // Sets the gyroscope's batch data rate for the FIFO. 
 bool LSM6DSO::setGyroBatchDataRate(uint16_t rate) {
 
-  if( (rate < 65) | (rate > 6667) )
+  if( (rate < 26) | (rate > 6667) )
     return false; 
   
   uint8_t regVal;
@@ -1670,6 +1675,9 @@ bool LSM6DSO::setGyroBatchDataRate(uint16_t rate) {
       break;
     case 65:
       regVal |= FIFO_BDR_GYRO_6_5Hz;
+      break;
+    case 26:
+      regVal |= FIFO_BDR_GYRO_26Hz;
       break;
     case 125:
       regVal |= FIFO_BDR_GYRO_12_5Hz;
@@ -1727,6 +1735,8 @@ float LSM6DSO::getGyroBatchDataRate() {
       return 6.5;
     case FIFO_BDR_GYRO_12_5Hz:
       return 12.5;
+    case FIFO_BDR_GYRO_26Hz:
+      return 26.0;
     case FIFO_BDR_GYRO_52Hz:
       return 52.0;
     case FIFO_BDR_GYRO_104Hz:
