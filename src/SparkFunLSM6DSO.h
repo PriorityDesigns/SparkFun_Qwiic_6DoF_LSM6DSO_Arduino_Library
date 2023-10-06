@@ -223,6 +223,7 @@ class LSM6DSO : public LSM6DSOCore
     float getGyroBatchDataRate();
     void fifoClear();
     fifoData fifoRead();
+	status_t fifoReadRaw(uint8_t*, uint8_t count = 1);
     uint16_t getFifoStatus();
     void fifoEnd();
     

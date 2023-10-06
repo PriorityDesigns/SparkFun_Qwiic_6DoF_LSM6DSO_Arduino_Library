@@ -1821,6 +1821,20 @@ fifoData LSM6DSO::fifoRead() {
   
 }
 
+// Read count records from the FIFO and store in buffer. Each record will be 7 bytes.
+// Assumes sufficent records exist in FIFO or duplicate data will be returned.
+status_t LSM6DSO::fifoReadRaw(uint8_t* buffer, uint8_t count) {
+  for(int i = 0; i < count; i++){
+    status_t returnError = readMultipleRegisters(buffer+(i * 7), FIFO_DATA_OUT_TAG, 7);
+    
+    if( returnError != IMU_SUCCESS ){
+      return returnError;  
+    }
+  }
+
+  return IMU_SUCCESS;
+}
+
 uint16_t LSM6DSO::getFifoStatus() {
 
 	// uint8_t regVal;
