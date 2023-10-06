@@ -1513,7 +1513,7 @@ uint8_t LSM6DSO::getFifoMode(){
 }
 
 // Address:0x07 and 0x08 , bit[7:0] bit[0]: default value is: 0x000
-// This sets the number of bytes that the FIFO can hold. Maximum possible value
+// This sets the number of samples that the FIFO can hold. Maximum possible value
 // is 511
 bool LSM6DSO::setFifoDepth(uint16_t depth) {
 
@@ -1538,7 +1538,7 @@ bool LSM6DSO::setFifoDepth(uint16_t depth) {
 }
 
 // Address:0x07 and 0x08 , bit[7:0] bit[0]: default value is: 0x000
-// This function gets the number of bytes that the FIFO can hold.  
+// This function gets the number of samples that the FIFO can hold.  
 uint16_t LSM6DSO::getFifoDepth(){
 
   uint8_t regVal[2];
