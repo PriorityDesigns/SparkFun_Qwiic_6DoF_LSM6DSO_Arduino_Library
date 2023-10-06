@@ -1527,7 +1527,7 @@ bool LSM6DSO::setFifoDepth(uint16_t depth) {
   regVal &= 0x01; 
   dataToWrite[0] = depth & 0x00FF; // full byte
   dataToWrite[1] = (depth & 0x0100) >> 8; //one bit
-  dataToWrite[1] |= regVal;// add the contents from the read 
+  dataToWrite[1] |= (regVal & 0xFE);// add the contents from the read 
 
     
   returnError = writeMultipleRegisters(dataToWrite, FIFO_CTRL1, 2);
@@ -1547,7 +1547,7 @@ uint16_t LSM6DSO::getFifoDepth(){
   if( returnError != IMU_SUCCESS )
     return IMU_GENERIC_ERROR;
   
-  waterMark = static_cast<uint16_t>(regVal[1]) << 8 | regVal[0];
+  waterMark = static_cast<uint16_t>(regVal[1] & 0x01) << 8 | regVal[0];
   return waterMark; 
 }
 
