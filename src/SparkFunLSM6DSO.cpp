@@ -1835,6 +1835,33 @@ status_t LSM6DSO::fifoReadRaw(uint8_t* buffer, uint8_t count) {
   return IMU_SUCCESS;
 }
 
+// Read a record from the FIFO. Returns a tag of 0x00 on failure.
+fifoSample LSM6DSO::fifoReadSample() {
+  uint8_t raw[7];
+  fifoSample output;
+
+  status_t returnError = readMultipleRegisters(raw, FIFO_DATA_OUT_TAG, 7);
+  
+  // Check parity
+  int parity = raw[0] ^ (raw[0] >> 4);
+  parity = parity ^ (parity >> 2);
+  parity = parity ^ (parity >> 1);
+
+  if( returnError != IMU_SUCCESS || parity & 0x01 == 0){
+    output.tag = 0x00;
+    return output;
+  }
+
+  output.tag = raw[0] >> 3;
+  output.sequence = (raw[0] & 0x06) >> 1;
+
+  output.x = raw[1] | (raw[2] << 8);
+  output.y = raw[3] | (raw[4] << 8);
+  output.z = raw[5] | (raw[6] << 8);
+
+  return output;
+}
+
 uint16_t LSM6DSO::getFifoStatus() {
 
 	// uint8_t regVal;

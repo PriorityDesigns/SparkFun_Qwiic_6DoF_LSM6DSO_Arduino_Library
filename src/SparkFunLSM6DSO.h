@@ -133,6 +133,15 @@ public:
   float temperatureF; 
 };
 
+struct fifoSample{
+public:
+	uint8_t tag;
+	uint8_t sequence;
+	uint16_t x;
+	uint16_t y;
+	uint16_t z;
+};
+
 
 
 //This is the highest level class of the driver.
@@ -224,6 +233,7 @@ class LSM6DSO : public LSM6DSOCore
     void fifoClear();
     fifoData fifoRead();
 	status_t fifoReadRaw(uint8_t*, uint8_t count = 1);
+	fifoSample fifoReadSample();
     uint16_t getFifoStatus();
     void fifoEnd();
     
