@@ -1771,14 +1771,14 @@ fifoData LSM6DSO::fifoRead() {
   fifoData tempFifoData; 
   
   status_t returnError = readRegister(&tempTagByte, FIFO_DATA_OUT_TAG);
-  tempTagByte &= 0xF8;
-  tempTagByte = tempTagByte >> 3;
 
   if( returnError != IMU_SUCCESS ){
     tempFifoData.fifoTag = IMU_GENERIC_ERROR;  
     return tempFifoData;  
   }
 
+  tempTagByte &= 0xF8;
+  tempTagByte = tempTagByte >> 3;
 
   tempFifoData.fifoTag = tempTagByte;
 
