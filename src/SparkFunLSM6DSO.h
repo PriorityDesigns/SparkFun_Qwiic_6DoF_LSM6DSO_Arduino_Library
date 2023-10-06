@@ -261,7 +261,10 @@ class LSM6DSO : public LSM6DSOCore
     uint8_t clearAllInt();
 
   private:
-
+	uint8_t gyroScale = 0;
+	uint8_t gyroRange = 0;
+	uint8_t accelScale = 0;
+	uint8_t accelRange = 0;
 };
 
 enum LSM6DSO_REGISTERS {

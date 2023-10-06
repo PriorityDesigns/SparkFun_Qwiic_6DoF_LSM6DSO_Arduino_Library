@@ -507,6 +507,10 @@ status_t LSM6DSO::beginSettings() {
   // Write Accelerometer Settings....
 	writeRegister(CTRL1_XL, dataToWrite);
 
+  // Update cached scale and range
+  accelScale = (dataToWrite >> 1) & 0x01;
+  accelRange = (dataToWrite >> 2) & 0x03;   
+
 	//Setup the gyroscope**********************************************
 	dataToWrite = 0; // Clear variable
 
@@ -570,6 +574,10 @@ status_t LSM6DSO::beginSettings() {
 	
   // Write the gyroscope imuSettings. 
 	writeRegister(CTRL2_G, dataToWrite);
+  
+  // Update cached scale and range
+  gyroScale = (dataToWrite >> 1) & 0x01; 
+  gyroRange = (dataToWrite >> 2) & 0x03; 
 
 	return IMU_SUCCESS;
 }
@@ -768,8 +776,13 @@ bool LSM6DSO::setAccelRange(uint8_t range) {
   returnError = writeRegister(CTRL1_XL, regVal);
   if( returnError != IMU_SUCCESS )
       return false;
-  else
+  else {
+      // Update cached scale and range
+      accelScale = (regVal >> 1) & 0x01;
+      accelRange = (regVal >> 2) & 0x03; 
+
       return true;
+  }
 }
 
 // Address: 0x10 , bit[4:3]: default value is: 0x00 (2g) 
@@ -783,6 +796,10 @@ uint8_t LSM6DSO::getAccelRange(){
   status_t returnError = readRegister(&regVal, CTRL1_XL);
   if( returnError != IMU_SUCCESS )
     return IMU_GENERIC_ERROR;
+
+  // Update cached scale and range
+  accelScale = (regVal >> 1) & 0x01;
+  accelRange = (regVal >> 2) & 0x03; 
 
   fullScale = getAccelFullScale();  
   regVal = (regVal & 0x0C) >> 2; 
@@ -885,8 +902,13 @@ bool LSM6DSO::setAccelDataRate(uint16_t rate) {
   returnError = writeRegister(CTRL1_XL, regVal);
   if( returnError != IMU_SUCCESS )
       return false;
-  else
+  else{
+      // Update cached scale and range
+      accelScale = (regVal >> 1) & 0x01;
+      accelRange = (regVal >> 2) & 0x03; 
+
       return true;
+  }
 }
 
 // Address: 0x10, bit[7:4]: default value is: 0x00 (Power Down)
@@ -902,6 +924,10 @@ float LSM6DSO::getAccelDataRate(){
 
   if( returnError != IMU_SUCCESS )
     return static_cast<float>( IMU_GENERIC_ERROR );
+
+   // Update cached scale and range
+   accelScale = (regVal >> 1) & 0x01;
+   accelRange = (regVal >> 2) & 0x03; 
 
    regVal &= ~ODR_XL_MASK; 
 
@@ -1084,15 +1110,9 @@ float LSM6DSO::readFloatAccelZ()
 
 float LSM6DSO::calcAccel( int16_t input )
 {
-  uint8_t accelRange; 
-  uint8_t scale;
   float output;
 
-  readRegister(&accelRange, CTRL1_XL);
-  scale = (accelRange >> 1) & 0x01;
-  accelRange = (accelRange >> 2) & (0x03);  
-  
-  if( scale == 0 ) {
+  if( accelScale == 0 ) {
     switch( accelRange ){
       case 0:// Register value 0: 2g
         output = (static_cast<float>(input) * (.061)) / 1000;
@@ -1109,7 +1129,7 @@ float LSM6DSO::calcAccel( int16_t input )
     }
   }
 
-  if( scale == 1 ){
+  if( accelScale == 1 ){
     switch( accelRange ){
       case 0: //Register value 0: 2g
         output = (static_cast<float>(input) * (0.061)) / 1000;
@@ -1190,8 +1210,12 @@ bool LSM6DSO::setGyroDataRate(uint16_t rate) {
   returnError = writeRegister(CTRL2_G, regVal);
   if( returnError != IMU_SUCCESS )
       return false;
-  else
+  else {
+      // Update cached scale and range
+      gyroScale = (regVal >> 1) & 0x01; 
+      gyroRange = (regVal >> 2) & 0x03; 
       return true;
+  }
 }
 
 // Address:CTRL2_G , bit[7:4]: default value is:0x00 
@@ -1204,6 +1228,10 @@ float LSM6DSO::getGyroDataRate(){
 
   if( returnError != IMU_SUCCESS )
     return static_cast<float>(IMU_GENERIC_ERROR);
+
+  // Update cached scale and range
+  gyroScale = (regVal >> 1) & 0x01; 
+  gyroRange = (regVal >> 2) & 0x03; 
 
   regVal &= ~ODR_GYRO_MASK;
 
@@ -1271,8 +1299,13 @@ bool LSM6DSO::setGyroRange(uint16_t range) {
   returnError = writeRegister(CTRL2_G, regVal);
   if( returnError != IMU_SUCCESS )
       return false;
-  else
+  else {
+      // Update cached scale and range
+      gyroScale = (regVal >> 1) & 0x01; 
+      gyroRange = (regVal >> 2) & 0x03; 
+
       return true;
+  }
 }
 
 // Address: 0x11, bit[3:0]: default value is: 0x00
@@ -1284,6 +1317,10 @@ uint16_t LSM6DSO::getGyroRange(){
   status_t returnError = readRegister(&regVal, CTRL2_G);
   if( returnError != IMU_SUCCESS )
     return IMU_GENERIC_ERROR;
+
+  // Update cached scale and range
+  gyroScale = (regVal >> 1) & 0x01; 
+  gyroRange = (regVal >> 2) & 0x03; 
 
   regVal &= ~FS_G_MASK;
   
@@ -1369,15 +1406,9 @@ float LSM6DSO::readFloatGyroZ() {
 
 float LSM6DSO::calcGyro( int16_t input ) {
 
-	uint8_t gyroRange;  
-  uint8_t fullScale;
   float output; 
 
-  readRegister(&gyroRange, CTRL2_G) ;
-  fullScale = (gyroRange >> 1) & 0x01; 
-  gyroRange = (gyroRange >> 2) & 0x03; 
-
-  if( fullScale )
+  if( gyroScale )
     output = (static_cast<float>(input) * 4.375)/1000;
   else {
     switch( gyroRange ){
